@@ -1,16 +1,21 @@
 const bcrypt = require('bcryptjs')
+const upload = require('../middlewares/upload')
+const sharp = require('sharp')
+const auth = require('../middlewares/auth')
+const {sendWelcomeEmail, sendCancelationEmail} = require('../emails/account')
+const User = require('../models/user')
+
 const express = require('express')
 const router = new express.Router()
-
-const auth = require('../middlewares/auth')
-
-const User = require('../models/user')
 
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
 
     try {
         await user.save()
+
+        sendWelcomeEmail(user.email, user.name)
+        
         const token = await user.generateAuthToken()
         res.status(201).send({user, token})
         
@@ -85,6 +90,7 @@ router.delete('/users/me', auth, async (req, res) => {
     const user = req.user
     try {
         await user.delete()
+        sendCancelationEmail(user.email, user.name)
         
         res.status(200).send(user)
         
@@ -113,9 +119,6 @@ router.patch('/users/me', auth, async (req, res) => {
         res.status(500).send(error)
     }
 })
-
-const upload = require('../middlewares/upload')
-const sharp = require('sharp')
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req,res) => {
     const buffer = await sharp(req.file.buffer).resize({ width: 250, heigth: 250 }).png().toBuffer()
