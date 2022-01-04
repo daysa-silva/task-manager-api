@@ -1,24 +1,10 @@
 const request = require('supertest')
-const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose')
-const app = require('../src/app') 
 const User = require('../src/models/user')
+const app = require('../src/app') 
 
-const userOneId = new mongoose.Types.ObjectId()
-const userOne = {
-    _id: userOneId,
-    name: 'Mike',
-    email: 'mike@email.com',
-    password: '123456',
-    tokens: [{
-        token: jwt.sign({_id: userOneId}, process.env.JWT_SECRET)
-    }]
-}
+const { userOne, taskOne, setupDatabase } = require('./fixtures/db')
 
-beforeEach(async () => {
-    await User.deleteMany()
-    await new User(userOne).save()
-})
+beforeEach( setupDatabase )
 
 test('Should signup a new user', async () => {
     const response = await request(app).post('/users').send({
@@ -49,7 +35,7 @@ test('Should login existing user', async () => {
         password: userOne.password
     }).expect(200)
 
-    const user = await User.findById(userOneId)
+    const user = await User.findById(userOne._id)
     
     //Assertions about the response
     expect(response.body.token).toBe(user.tokens[1].token)
@@ -88,7 +74,7 @@ test('Should delete account for user', async () => {
     .expect(200)
 
     //Assert that the database has changed correctly
-    const user = await User.findById(userOneId)
+    const user = await User.findById(userOne._id)
     expect(user).toBeNull()
 })
 
@@ -105,7 +91,7 @@ test('Should upload avatar image', async () => {
         .attach('avatar', 'tests/fixtures/profile-picture.jpg')
         .expect(200)
 
-    const user = await User.findById(userOneId)
+    const user = await User.findById(userOne._id)
     //expect({}).toBe({}) --> FAIL
     //expect({}).toEqual({}) --> PASS
     expect(user.avatar).toEqual(expect.any(Buffer))
@@ -119,7 +105,7 @@ test('Should update valid user fields', async () => {
     })
     .expect(200)
 
-    const user = await User.findById(userOneId)
+    const user = await User.findById(userOne._id)
     expect(user.name).toBe('Michael')
 })
 
