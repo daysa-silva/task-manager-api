@@ -1,7 +1,7 @@
 {
   "name": "task-manager",
   "version": "1.0.0",
-  "description": "",
+  "description": "Task manager api with authentication user and email notifications",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -27,5 +27,19 @@
     "jest": "^27.4.5",
     "nodemon": "^2.0.15",
     "supertest": "^6.1.6"
-  }
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daysa-silva/task-manager-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/daysa-silva/task-manager-api/issues"
+  },
+  "homepage": "https://github.com/daysa-silva/task-manager-api#readme"
 }
